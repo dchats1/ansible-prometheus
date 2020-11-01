@@ -1,2 +1,54 @@
 ---
-# tasks file for prometheus
+- name: Create Prometheus data volume
+  containers.podman.podman_volume:
+    state: present
+    name: prometheus-data-volume
+    label:
+      app: prometheus
+
+- name: Create Prometheus configuration directory
+  file:
+    path: '{{ prometheus_base_dir }}/prometheus-config/'
+    mode: '0775'
+    state: directory
+
+- name: Create pid file directory
+  file:
+    path: '{{ prometheus_base_dir }}/pids/'
+    state: directory
+
+- name: Generate Prometheus configuration file
+  template:
+    src: prometheus.yaml
+    dest: '{{ prometheus_base_dir }}/prometheus-config/prometheus.yaml'
+    mode: '0644'
+  notify:
+    - Restart Prometheus
+
+- name: Create Prometheus Pod
+  containers.podman.podman_pod:
+    name: prometheus-pod
+    state: started
+    network: '{{ prometheus_podman_network }}'
+    ip: #TODO
+    hostname: '{{ prometheus_hostname }}.{{ prometheus_domain }}'
+
+- name: Run Prometheus Container
+  containers.podman.podman_container:
+    name: prometheus
+    image: 'quay.io/prometheus/prometheus:v{{ prometheus_version }}'
+    pod: prometheus-pod
+    conmon_pidfile: '{{ prometheus_base_dir }}/pids/prometheus.pid'
+    volume:
+      - prometheus-data-volume:/prometheus
+      - '{{ prometheus_base_dir }}/prometheus-config/prometheus.yaml:/etc/prometheus.yml:Z'
+
+
+- name: Generate systemd unit file
+
+- name: Open Prometheus port
+  firewalld:
+    port: '{{ prometheus_listen_port }}/tcp'
+    permanent: yes
+    state: enabled
+    immediate: yes

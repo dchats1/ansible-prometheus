@@ -1,2 +1,7 @@
 ---
-# defaults file for prometheus
+prometheus_version: 2.22.0
+prometheus_base_dir: /var/lib/containers
+prometheus_podman_network: podman
+prometheus_domain: example.com
+prometheus_hostname: prometheus
+prometheus_listen_port: 9090
