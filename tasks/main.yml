@@ -19,32 +19,33 @@
 
 - name: Generate Prometheus configuration file
   template:
-    src: prometheus.yaml
-    dest: '{{ prometheus_base_dir }}/prometheus-config/prometheus.yaml'
+    src: '{{ prometheus_config_template }}'
+    dest: '{{ prometheus_base_dir }}/prometheus-config/prometheus.yml'
     mode: '0644'
-  notify:
-    - Restart Prometheus
+#  notify:
+#    - Restart Prometheus
 
 - name: Create Prometheus Pod
   containers.podman.podman_pod:
     name: prometheus-pod
     state: started
     network: '{{ prometheus_podman_network }}'
-    ip: #TODO
     hostname: '{{ prometheus_hostname }}.{{ prometheus_domain }}'
 
 - name: Run Prometheus Container
   containers.podman.podman_container:
-    name: prometheus
+    name: '{{ prometheus_hostname }}'
     image: 'quay.io/prometheus/prometheus:v{{ prometheus_version }}'
     pod: prometheus-pod
     conmon_pidfile: '{{ prometheus_base_dir }}/pids/prometheus.pid'
     volume:
       - prometheus-data-volume:/prometheus
-      - '{{ prometheus_base_dir }}/prometheus-config/prometheus.yaml:/etc/prometheus.yml:Z'
-
+      - '{{ prometheus_base_dir }}/prometheus-config/prometheus.yml:/etc/prometheus.yml:Z'
 
 - name: Generate systemd unit file
+  include_tasks: systemd.yml
+  vars:
+    item: prometheus
 
 - name: Open Prometheus port
   firewalld:

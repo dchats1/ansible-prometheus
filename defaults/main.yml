@@ -1,6 +1,7 @@
 ---
 prometheus_version: 2.22.0
 prometheus_base_dir: /var/lib/containers
+prometheus_config_template: prometheus.yml
 prometheus_podman_network: podman
 prometheus_domain: example.com
 prometheus_hostname: prometheus
