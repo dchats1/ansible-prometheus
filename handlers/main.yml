@@ -1,2 +1,14 @@
 ---
-# handlers file for prometheus
+- name: daemon-reload
+  systemd:
+    daemon_reload: yes
+
+- name: Restart Prometheus 0
+  systemd:
+    name: 'container-{{ prometheus_hostname }}-0.service'
+    state: restarted
+
+- name: Restart Prometheus 1
+  systemd:
+    name: 'container-{{ prometheus_hostname }}-1.service'
+    state: restarted

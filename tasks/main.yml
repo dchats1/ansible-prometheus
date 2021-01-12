@@ -1,23 +1,54 @@
 ---
 - include_tasks: single-deploy.yml
 
-- name: Get Infra Container(s)
+- name: Get Prometheus 0 Pod Infra Container
   containers.podman.podman_pod_info:
     name: '{{ prometheus_hostname }}-0-pod'
   register: pod_info
 
 - set_fact:
-    prometheus_infra_id: '{{ pod_info.pods[0].InfraContainerID  }}'
+    prometheus_0_infra_id: '{{ pod_info.pods[0].InfraContainerID  }}'
 
 - name: Get Infra Container info
   containers.podman.podman_container_info:
-    name: '{{ prometheus_infra_id }}'
+    name: '{{ prometheus_0_infra_id }}'
   register: container_info
 
 - set_fact:
-    prometheus_pod_ip: '{{ container_info | json_query(query) }}'
+    prometheus_0_pod_ip: '{{ container_info | json_query(query) }}'
   vars:
     query: 'containers[0].NetworkSettings.Networks.{{ prometheus_podman_network }}.IPAddress'
 
+- name: Deploy HA pair
+  block:
+  - include_tasks: ha-deploy.yml
+    when: prometheus_ha_pair
+  
+  - name: Get Prometheus 1 Pod Infra Container
+    containers.podman.podman_pod_info:
+      name: '{{ prometheus_hostname }}-1-pod'
+    register: pod_info
+  
+  - set_fact:
+      prometheus_1_infra_id: '{{ pod_info.pods[0].InfraContainerID  }}'
+  
+  - name: Get Infra Container info
+    containers.podman.podman_container_info:
+      name: '{{ prometheus_1_infra_id }}'
+    register: container_info
+  
+  - set_fact:
+      prometheus_1_pod_ip: '{{ container_info | json_query(query) }}'
+    vars:
+      query: 'containers[0].NetworkSettings.Networks.{{ prometheus_podman_network }}.IPAddress'
+
+  - debug:
+      msg:
+      - '{{ prometheus_hostname }}-0 pod IP: {{ prometheus_0_pod_ip }}'
+      - '{{ prometheus_hostname }}-1 pod IP: {{ prometheus_1_pod_ip }}'
+  when: prometheus_ha_pair
+
 - debug:
-    msg: '{{ prometheus_hostname }}-0 pod IP: {{ prometheus_pod_ip }}'
+    msg:
+    - '{{ prometheus_hostname }}-0 pod IP: {{ prometheus_0_pod_ip }}'
+  when: not prometheus_ha_pair

@@ -12,8 +12,8 @@
     group: root
     mode: '0644'
   register: unit_file
-#  notify:
-#    - daemon-reload
+  notify:
+    - daemon-reload
 
 - name: Start Service
   systemd:
@@ -21,7 +21,3 @@
     state: started
     enabled: yes
   when: unit_file.changed == false
-
-- set_fact:
-    services_to_restart: '{{ services_to_restart + [ "container-" + item + ".service" ] }}'
-  when: unit_file.changed == true
