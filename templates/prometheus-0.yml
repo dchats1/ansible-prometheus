@@ -1,0 +1,21 @@
+global:
+  scrape_interval: 15s
+  evaluation_interval: 15s
+
+  external_labels:
+    prometheus_cluster: {{ prometheus_hostname }}.{{ prometheus_domain }}
+    prometheus_replica: replica0
+
+scrape_configs:
+
+  - job_name: 'prometheus'
+    static_configs:
+      - targets:
+        - {{ prometheus_hostname }}-0.{{ prometheus_domain }}:{{ prometheus_listen_port }}
+{% if prometheus_ha_pair %}
+        - {{ prometheus_hostname }}-1.{{ prometheus_domain }}:{{ prometheus_listen_port }}
+{% endif %}
+
+{% if prometheus_additional_scrape_configs|length > 0 %}
+  {{ prometheus_additional_scrape_configs | to_nice_yaml(indent=2) | indent(2,False) }}
+{% endif %}

@@ -1,0 +1,49 @@
+---
+- name: Create Prometheus data volume
+  containers.podman.podman_volume:
+    state: present
+    name: '{{ prometheus_hostname }}-0-data-volume'
+    label:
+      app: prometheus
+
+- name: Create Prometheus configuration directory
+  file:
+    path: '{{ prometheus_base_dir }}/prometheus-config/'
+    mode: '0775'
+    state: directory
+
+- name: Create pid file directory
+  file:
+    path: '{{ prometheus_base_dir }}/pids/'
+    state: directory
+
+- name: Generate Prometheus configuration file
+  template:
+    src: prometheus-0.yml
+    dest: '{{ prometheus_base_dir }}/prometheus-config/{{ prometheus_hostname }}-0.yml'
+    mode: '0644'
+#  notify:
+#    - Restart Prometheus
+
+- name: Create Prometheus Pod
+  containers.podman.podman_pod:
+    name: '{{ prometheus_hostname }}-0-pod'
+    state: started
+    network: '{{ prometheus_podman_network }}'
+    hostname: '{{ prometheus_hostname }}.{{ prometheus_domain }}'
+
+- name: Run Prometheus Container
+  containers.podman.podman_container:
+    name: '{{ prometheus_hostname}}-0'
+    image: 'quay.io/prometheus/prometheus:v{{ prometheus_version }}'
+    pod: '{{ prometheus_hostname }}-0-pod'
+    conmon_pidfile: '{{ prometheus_base_dir }}/pids/{{ prometheus_hostname }}-0.pid'
+    volume:
+      - '{{ prometheus_hostname }}-0-data-volume:/prometheus'
+      - '{{ prometheus_base_dir }}/prometheus-config/{{ prometheus_hostname }}-0.yml:/etc/prometheus/prometheus.yml:Z'
+      - /etc/pki/ca-trust/source/anchors/:/etc/ssl/certs/:Z
+
+- name: Generate systemd unit file
+  include_tasks: systemd.yml
+  vars:
+    item: '{{ prometheus_hostname }}-0'
