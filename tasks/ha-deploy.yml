@@ -8,7 +8,7 @@
 
 - name: Create Prometheus configuration directory
   file:
-    path: '{{ prometheus_base_dir }}/prometheus-config/'
+    path: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/'
     mode: '0775'
     state: directory
 
@@ -20,7 +20,7 @@
 - name: Generate Prometheus configuration file
   template:
     src: prometheus-1.yml
-    dest: '{{ prometheus_base_dir }}/prometheus-config/{{ prometheus_hostname }}-1.yml'
+    dest: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/{{ prometheus_hostname }}-1.yml'
     mode: '0644'
   notify:
     - Restart Prometheus 1
@@ -34,7 +34,7 @@
 
 - name: Run Prometheus Container
   containers.podman.podman_container:
-    name: '{{ prometheus_hostname}}-1'
+    name: '{{ prometheus_hostname }}-1'
     image: 'quay.io/prometheus/prometheus:v{{ prometheus_version }}'
     pod: '{{ prometheus_hostname }}-1-pod'
     conmon_pidfile: '{{ prometheus_base_dir }}/pids/{{ prometheus_hostname }}-1.pid'
@@ -43,7 +43,17 @@
       - '{{ prometheus_base_dir }}/prometheus-config/{{ prometheus_hostname }}-1.yml:/etc/prometheus/prometheus.yml:Z'
       - /etc/pki/ca-trust/source/anchors/:/etc/ssl/certs/:z
 
+- name: Run Nginx Proxy Container
+  containers.podman.podman_container:
+    name: '{{ prometheus_hostname }}-proxy-1'
+    image: docker.io/library/nginx:latest
+    pod: '{{ prometheus_hostname }}-1-pod'
+    conmon_pidfile: '{{ prometheus_base_dir }}/pids/{{ prometheus_hostname }}-proxy-1.pid'
+    volume:
+      - '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/prometheus-proxy.conf:/etc/nginx/conf.d/default.conf:z'
+
 - name: Generate systemd unit file
   include_tasks: systemd.yml
-  vars:
-    item: '{{ prometheus_hostname }}-1'
+  loop:
+    - '{{ prometheus_hostname }}-1'
+    - '{{ prometheus_hostname }}-proxy-1'

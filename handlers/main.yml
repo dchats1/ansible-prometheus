@@ -12,3 +12,13 @@
   systemd:
     name: 'container-{{ prometheus_hostname }}-1.service'
     state: restarted
+
+- name: Restart Proxy 0
+  systemd:
+    name: 'container-{{ prometheus_hostname }}-proxy-0.service'
+    state: restarted
+
+- name: Restart Proxy 1
+  systemd:
+    name: 'container-{{ prometheus_hostname }}-proxy-1.service'
+    state: restarted
