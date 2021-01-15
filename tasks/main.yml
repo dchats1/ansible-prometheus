@@ -1,4 +1,7 @@
 ---
+- debug:
+    msg: '{{ prometheus_additional_scrape_configs }}'
+
 - include_tasks: single-deploy.yml
 
 - name: Get Prometheus 0 Pod Infra Container

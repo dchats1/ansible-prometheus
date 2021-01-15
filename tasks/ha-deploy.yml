@@ -40,7 +40,7 @@
     conmon_pidfile: '{{ prometheus_base_dir }}/pids/{{ prometheus_hostname }}-1.pid'
     volume:
       - '{{ prometheus_hostname }}-1-data-volume:/prometheus'
-      - '{{ prometheus_base_dir }}/prometheus-config/{{ prometheus_hostname }}-1.yml:/etc/prometheus/prometheus.yml:Z'
+      - '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/{{ prometheus_hostname }}-1.yml:/etc/prometheus/prometheus.yml:Z'
       - /etc/pki/ca-trust/source/anchors/:/etc/ssl/certs/:z
 
 - name: Run Nginx Proxy Container

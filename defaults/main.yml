@@ -8,7 +8,7 @@ prometheus_hostname: prometheus
 prometheus_listen_port: 9090
 prometheus_ha_pair: false
 prometheus_additional_scrape_configs: []
-#prometheus_additional_scrape_configs:
+#prometheus_additional_scrape_configs: |
 #- job_name: 'dns_sd_node'
 #  dns_sd_configs:
 #  - names:

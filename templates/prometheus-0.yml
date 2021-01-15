@@ -3,7 +3,7 @@ global:
   evaluation_interval: 15s
 
   external_labels:
-    prometheus_cluster: {{ prometheus_hostname }}.{{ prometheus_domain }}
+    prometheus_cluster: {{ prometheus_hostname }}-0.{{ prometheus_domain }}
     prometheus_replica: replica0
 
 scrape_configs:
@@ -17,5 +17,5 @@ scrape_configs:
 {% endif %}
 
 {% if prometheus_additional_scrape_configs|length > 0 %}
-  {{ prometheus_additional_scrape_configs | to_nice_yaml(indent=2) | indent(2,False) }}
+  {{ prometheus_additional_scrape_configs | indent(2) }}
 {% endif %}
