@@ -8,16 +8,19 @@ prometheus_listen_port: 9090
 prometheus_ha_pair: false
 prometheus_additional_scrape_configs: []
 #prometheus_additional_scrape_configs: |
-#- job_name: 'dns_sd_node'
-#  dns_sd_configs:
-#  - names:
-#    - _node._prometheus.example.com.
-#    refresh_interval: 30s
-#    type: SRV
-#
-#- job_name: 'grafana'
-#  static_configs:
-#    - targets:
-#      - grafana.example.com
-#  tls_config:
-#    ca_file: /etc/ssl/certs/example.pem
+#  - job_name: 'dns_sd_node'
+#    dns_sd_configs:
+#    - names:
+#      - _node._prometheus.example.com.
+#      refresh_interval: 30s
+#      type: SRV
+#  
+#  - job_name: 'grafana'
+#    static_configs:
+#      - targets:
+#        - grafana.example.com
+#    tls_config:
+#      ca_file: /etc/ssl/certs/example.pem
+prometheus_remote_write_configs: []
+#prometheus_remote_write_configs: |
+#  - url: http://cortex.example.com/api/prom/push

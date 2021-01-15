@@ -15,14 +15,15 @@ Role Variables
 
 Variable                                  | Description
 ------------------------------------------|--------------
-prometheus_version                        | Version of Prometheus (Default: 2.24.0)
-prometheus_base_dir                       | Directory to store prometheus configs (Default: /var/lib/containers)
-prometheus_podman_network                 | Podman Network to deploy containers (Default: podman)
-prometheus_domain                         | Domain name for prometheus containers (Default: example.com)
-prometheus_hostname                       | Short hostname for containers (Default: prometheus)
-prometheus_listen_port                    | Port for --web.listen-address (Default: 9090)
+prometheus_version                        | Version of Prometheus. (Default: 2.24.0)
+prometheus_base_dir                       | Directory to store prometheus configs. (Default: /var/lib/containers)
+prometheus_podman_network                 | Podman Network to deploy containers. (Default: podman)
+prometheus_domain                         | Domain name for prometheus containers. (Default: example.com)
+prometheus_hostname                       | Short hostname for containers. (Default: prometheus)
+prometheus_listen_port                    | Port for --web.listen-address. (Default: 9090)
 prometheus_ha_pair                        | Deploy Prometheus as HA pairs. (Default: false)
-prometheus_additional_scrape_configs      | Additional scrape configs. See example in comments and down below. []
+prometheus_additional_scrape_configs      | Additional scrape configs. See example in comments and down below.
+prometheus_remote_write_configs           | Add remote_write configs. See example in comments and down below.
 
 ```
 prometheus_additional_scrape_configs: |  
@@ -39,6 +40,10 @@ prometheus_additional_scrape_configs: |
         - grafana.example.com
     tls_config:
       ca_file: /etc/ssl/certs/example.pem
+```
+```
+prometheus_remote_write_configs: |
+  - url: http://cortex.example.com/api/prom/push
 ```
 
 Dependencies
