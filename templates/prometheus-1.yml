@@ -6,6 +6,17 @@ global:
     prometheus_cluster: {{ prometheus_hostname }}.{{ prometheus_domain }}
     prometheus_replica: replica1
 
+{% if prometheus_alerting_rules|length > 0 %}
+rule_files:
+  - /etc/prometheus/rules/*
+{% endif %}
+
+{% if prometheus_alerting_configs|length > 0 %}
+alerting:
+  alertmanagers:
+  {{ prometheus_alerting_configs | indent(2) }}
+{% endif %}
+
 scrape_configs:
 
   - job_name: 'prometheus'

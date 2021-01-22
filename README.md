@@ -22,8 +22,17 @@ prometheus_domain                         | Domain name for prometheus container
 prometheus_hostname                       | Short hostname for containers. (Default: prometheus)
 prometheus_listen_port                    | Port for --web.listen-address. (Default: 9090)
 prometheus_ha_pair                        | Deploy Prometheus as HA pairs. (Default: false)
+prometheus_alerting_rules                 | Dictionary of names/urls for rules. See example below.
 prometheus_additional_scrape_configs      | Additional scrape configs. See example in comments and down below.
 prometheus_remote_write_configs           | Add remote_write configs. See example in comments and down below.
+
+```
+prometheus_alerting_rules:
+  - name: alertmanager
+    url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/alertmanager/alerts.yaml
+  - name: prometheus
+    url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/prometheus/alerts.yaml
+```
 
 ```
 prometheus_additional_scrape_configs: |  

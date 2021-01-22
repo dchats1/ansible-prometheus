@@ -1,4 +1,32 @@
 ---
+- name: Create Prometheus configuration directory
+  file:
+    path: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/'
+    mode: '0775'
+    state: directory
+
+- name: Create pid file directory
+  file:
+    path: '{{ prometheus_base_dir }}/pids/'
+    state: directory
+
+- name: Create alerting rules directory
+  file:
+    path: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/rules/'
+    mode: '0775'
+    state: directory
+
+- name: Copy rules files
+  get_url:
+    url: '{{ item.url }}'
+    dest: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/rules/{{ item.name }}'
+    mode: '0644'
+  loop: '{{ prometheus_alerting_rules }}'
+  when: prometheus_alerting_rules | length > 0
+  notify:
+    - Restart Prometheus 0
+    - Restart Prometheus 1
+
 - include_tasks: single-deploy.yml
 
 - name: Get Prometheus 0 Pod Infra Container

@@ -6,6 +6,11 @@ prometheus_domain: example.com
 prometheus_hostname: prometheus
 prometheus_listen_port: 9090
 prometheus_ha_pair: false
+prometheus_alerting_rules:
+  - name: alertmanager
+    url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/alertmanager/alerts.yaml
+  - name: prometheus
+    url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/prometheus/alerts.yaml
 prometheus_additional_scrape_configs: []
 #prometheus_additional_scrape_configs: |
 #  - job_name: 'dns_sd_node'
@@ -24,3 +29,8 @@ prometheus_additional_scrape_configs: []
 prometheus_remote_write_configs: []
 #prometheus_remote_write_configs: |
 #  - url: http://cortex.example.com/api/prom/push
+prometheus_alerting_configs: []
+#prometheus_alerting_configs: |
+#  - static_configs:
+#    - targets:
+#      - localhost:9093
