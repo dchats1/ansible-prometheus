@@ -27,6 +27,15 @@
     - Restart Prometheus 0
     - Restart Prometheus 1
 
+- set_fact:
+    prometheus_flags: '{{ prometheus_flags + [ item ] }}'
+  loop:
+    - --storage.tsdb.max-block-duration=2h
+    - --storage.tsdb.min-block-duration=2h
+    - --web.enable-admin-api
+    - --web.enable-lifecycle
+  when: prometheus_thanos_sidecar
+
 - include_tasks: single-deploy.yml
 
 - name: Get Prometheus 0 Pod Infra Container
@@ -70,13 +79,18 @@
     vars:
       query: 'containers[0].NetworkSettings.Networks.{{ prometheus_podman_network }}.IPAddress'
 
-  - debug:
-      msg:
-      - '{{ prometheus_hostname }}-0 pod IP: {{ prometheus_0_pod_ip }}'
-      - '{{ prometheus_hostname }}-1 pod IP: {{ prometheus_1_pod_ip }}'
   when: prometheus_ha_pair
+
+- include_tasks: side-car.yml
+  when: prometheus_thanos_sidecar
 
 - debug:
     msg:
     - '{{ prometheus_hostname }}-0 pod IP: {{ prometheus_0_pod_ip }}'
   when: not prometheus_ha_pair
+
+- debug:
+    msg:
+    - '{{ prometheus_hostname }}-0 pod IP: {{ prometheus_0_pod_ip }}'
+    - '{{ prometheus_hostname }}-1 pod IP: {{ prometheus_1_pod_ip }}'
+  when: prometheus_ha_pair

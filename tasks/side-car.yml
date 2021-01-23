@@ -1,0 +1,21 @@
+---
+- name: Run Thanos Sidecar 0 Container
+  containers.podman.podman_container:
+    name: '{{ prometheus_hostname }}-side-car-0'
+    image: 'quay.io/thanos/thanos:v{{ thanos_version }}'
+    pod: '{{ prometheus_hostname }}-0-pod'
+    conmon_pidfile: '{{ prometheus_base_dir }}/pids/{{ prometheus_hostname }}-0.pid'
+    volume:
+      - '{{ prometheus_hostname }}-0-data-volume:/data'
+    command: '{{ prometheus_thanos_sidecar_flags }}'
+
+- name: Run Thanos Sidecar 1 Container
+  containers.podman.podman_container:
+    name: '{{ prometheus_hostname }}-side-car-1'
+    image: 'quay.io/thanos/thanos:v{{ thanos_version }}'
+    pod: '{{ prometheus_hostname }}-1-pod'
+    conmon_pidfile: '{{ prometheus_base_dir }}/pids/{{ prometheus_hostname }}-0.pid'
+    volume:
+      - '{{ prometheus_hostname }}-1-data-volume:/data'
+    command: '{{ prometheus_thanos_sidecar_flags }}'
+  when: prometheus_ha_pair

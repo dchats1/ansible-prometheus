@@ -1,4 +1,4 @@
-Role Name
+Prometheus
 =========
 
 Deploy Prometheus in a podman container either as a single instance or as a HA Pair.
@@ -22,9 +22,39 @@ prometheus_domain                         | Domain name for prometheus container
 prometheus_hostname                       | Short hostname for containers. (Default: prometheus)
 prometheus_listen_port                    | Port for --web.listen-address. (Default: 9090)
 prometheus_ha_pair                        | Deploy Prometheus as HA pairs. (Default: false)
+prometheus_flags                          | Flags to pass to Prometheus. See example below.
+prometheus_thanos_sidecar                 | Deploy a Thanos sidecar. (Default: false)
+prometheus_thanos_sidecar_flags           | Flags to pass to the Thanos sidecar. See example below.
+thanos_version                            | Version of Thanos sidecar to deploy. (Default: 0.17.0)
 prometheus_alerting_rules                 | Dictionary of names/urls for rules. See example below.
 prometheus_additional_scrape_configs      | Additional scrape configs. See example in comments and down below.
 prometheus_remote_write_configs           | Add remote_write configs. See example in comments and down below.
+
+```
+prometheus_flags:
+  - '--web.listen-address=0.0.0.0:{{ prometheus_listen_port }}'
+  - --config.file=/etc/prometheus/prometheus.yml
+  - --storage.tsdb.path=/prometheus
+  - --web.console.libraries=/usr/share/prometheus/console_libraries
+  - --web.console.templates=/usr/share/prometheus/consoles
+```
+
+```
+prometheus_thanos_sidecar_flags:
+  - sidecar
+  - --tsdb.path=/data
+  - '--prometheus.url=http://localhost:{{ prometheus_listen_port }}'
+  - |
+    --objstore.config=type: S3 
+    config:
+      bucket: thanos
+      region: us-east-1
+      endpoint: s3.example.com
+      access_key: secret
+      secret_key: secret
+      insecure: false
+      signature_version2: false
+```
 
 ```
 prometheus_alerting_rules:

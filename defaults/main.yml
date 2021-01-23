@@ -6,6 +6,28 @@ prometheus_domain: example.com
 prometheus_hostname: prometheus
 prometheus_listen_port: 9090
 prometheus_ha_pair: false
+prometheus_flags:
+  - '--web.listen-address=0.0.0.0:{{ prometheus_listen_port }}'
+  - --config.file=/etc/prometheus/prometheus.yml
+  - --storage.tsdb.path=/prometheus
+  - --web.console.libraries=/usr/share/prometheus/console_libraries
+  - --web.console.templates=/usr/share/prometheus/consoles
+prometheus_thanos_sidecar: false
+prometheus_thanos_sidecar_flags:
+  - sidecar
+  - --tsdb.path=/data
+  - '--prometheus.url=http://localhost:{{ prometheus_listen_port }}'
+  - |
+    --objstore.config=type: S3 
+    config:
+      bucket: thanos
+      region: us-east-1
+      endpoint: s3.example.com
+      access_key: secret
+      secret_key: secret
+      insecure: false
+      signature_version2: false
+thanos_version: 0.17.0
 prometheus_alerting_rules:
   - name: alertmanager
     url: https://raw.githubusercontent.com/monitoring-mixins/website/master/assets/alertmanager/alerts.yaml
