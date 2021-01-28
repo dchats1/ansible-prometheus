@@ -11,8 +11,28 @@
     src: prometheus-1.yml
     dest: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/{{ prometheus_hostname }}-1.yml'
     mode: '0644'
+  register: config
   notify:
     - Restart Prometheus 1
+
+- name: Check Config
+  block:
+    - name: Promtool Check Config
+      containers.podman.podman_container:
+        name: '{{ prometheus_hostname }}-promtool'
+        image: 'quay.io/prometheus/prometheus:v{{ prometheus_version }}'
+        entrypoint: /bin/promtool
+        detach: no
+        rm: yes
+        volume: '{{ prometheus_base_dir }}/{{ prometheus_hostname }}-config/{{ prometheus_hostname }}-1.yml:/etc/prometheus/prometheus.yml:z'
+        command: check config /etc/prometheus/prometheus.yml
+      register: check_config
+    
+    - name: Fail if config file doesn't pass checker
+      fail:
+        msg: Prometheus config has a syntax error.
+      when: check_config.stdout.find('SUCCESS') == -1
+  when: config.changed
 
 - name: Create Prometheus Pod
   containers.podman.podman_pod:
