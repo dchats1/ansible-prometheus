@@ -1,5 +1,5 @@
 ---
-prometheus_version: 2.24.0
+prometheus_version: 2.39.1
 prometheus_base_dir: /var/lib/containers
 prometheus_podman_network: podman
 prometheus_domain: example.com
